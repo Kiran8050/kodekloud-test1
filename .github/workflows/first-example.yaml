@@ -8,11 +8,15 @@ jobs:
             - name: Checkout the own repo
               uses: actions/checkout@v4
 
-            - name: Display current working dir
-              run: pwd
+            - name: Executing different cmds
+              run: |
+                echo "Multiple cmds"  
+                pwd
+                ls -ltra
+                cat README.md
 
-            - name: List the files in the current directory
-              run: ls -l /
-              
-            - name: Read file
-              run: cat README.md
+            # - name: List the files in the current directory
+            #   run: ls -l /
+
+            # - name: Read file
+            #   run: cat README.md
