@@ -4,6 +4,10 @@ jobs:
     first-job:
         runs-on: ubuntu-latest
         steps:
+            
+            - name: Checkout the own repo
+              uses: actions/checkout@v4
+
             - name: Display current working dir
               run: pwd
             - name: List the files in the current directory
