@@ -8,11 +8,13 @@ jobs:
             - name: Checkout to self repo
               uses: actions/checkout@v4
 
-            - name: Give execute permission for the file
-              run: chmod +x ascii-script.sh              
+            # - name: Give execute permission for the file
+            #   run: chmod +x ascii-script.sh
 
-            - name: Execute shell script using file
-              run: ./ascii-script.sh
+            - name: Give permission and Execute shell script using file
+              run: |
+                chmod +x ascii-script.sh
+                ./ascii-script.sh
                 
             - name: List all files in repo
               run: ls -ltra
