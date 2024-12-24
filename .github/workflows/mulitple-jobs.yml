@@ -1,4 +1,3 @@
-name: Jobs
 on: push
 jobs:
     Build_Phase_job1:
