@@ -4,20 +4,12 @@ jobs:
     ascii-job:
         runs-on : ubuntu-latest
         steps:
+          
             - name: Checkout to self repo
               uses: actions/checkout@v4
 
-            - name: Download the required dependency
-              run: sudo apt-get install cowsay -y
-
-            - name: Generate ascii
-              run: cowsay -f dragon "This is dragon" >> dragon.txt
-            
-            - name: Validate generated file
-              run: grep -i "dragon" dragon.txt
-
-            - name: Display the content of the file
-              run: cat dragon.txt
-            
+            - name: Execute shell script using file
+              run: ./ascii-script.sh
+                
             - name: List all files in repo
               run: ls -ltra
