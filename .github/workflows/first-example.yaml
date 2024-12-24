@@ -10,7 +10,9 @@ jobs:
 
             - name: Display current working dir
               run: pwd
+
             - name: List the files in the current directory
               run: ls -l /
+              
             - name: Read file
               run: cat README.md
