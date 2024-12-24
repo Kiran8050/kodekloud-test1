@@ -11,3 +11,17 @@ jobs:
               run:  |
                 chmod +x ascii-script.sh
                 ./ascii-script.sh
+
+    Test_Phase_job2:
+        runs-on : ubuntu-latest
+        steps:
+            - name: Search for generated file
+              uses: grep -i "dragon" dragon.txt
+
+    Deploy_Phase_job3:
+        runs-on : ubuntu-latest
+        steps:
+            - name: Read the file
+              uses: |
+                cat dragon.txt              
+                ls -ltra
