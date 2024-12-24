@@ -1,4 +1,3 @@
-name: Multiple
 on: push
 jobs:
     Build_Phase_job1:
