@@ -15,11 +15,22 @@ jobs:
           chmod +x ascii-script.sh
           ./ascii-script.sh
 
+      - name: Upload the dragon-artifact
+        uses: action/upload-artifact@v4
+        with:
+          name: dragon-text-file
+          path: dragon.txt
+
   Test_Phase_job2:
     needs: Build_Phase_job1
     runs-on: ubuntu-latest
   
     steps:
+
+      - name: Download the dragon-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dragon-text-file
   
       - name: Search for generated file
         run: grep -i "dragon" dragon.txt
@@ -30,6 +41,11 @@ jobs:
   
     steps:
   
+      - name: Download the dragon-artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dragon-text-file
+          
       - name: Read the file
         run: |
          cat dragon.txt
