@@ -13,7 +13,7 @@ jobs:
           ./ascii-script.sh
 
   Test_Phase_job2:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - name: Search for generated file
         run: grep -i "dragon" dragon.txt
