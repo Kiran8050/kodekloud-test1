@@ -1,0 +1,12 @@
+name: My first workflow
+on: push
+jobs:
+    first-job:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Display current working dir
+              run: pwd
+            - name: List the files in the current directory
+              run: ls
+            - name: Read file
+              run: cat README.md
