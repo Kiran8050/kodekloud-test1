@@ -16,6 +16,7 @@ jobs:
           ./ascii-script.sh
 
   Test_Phase_job2:
+    needs: Build_Phase_job1
     runs-on: ubuntu-latest
   
     steps:
@@ -24,6 +25,7 @@ jobs:
         run: grep -i "dragon" dragon.txt
   
   Deploy_Phase_job3:
+    needs: Test_Phase_job2
     runs-on: ubuntu-latest
   
     steps:
