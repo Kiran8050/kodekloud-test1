@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - name: Search for generated file
-        uses: grep -i "dragon" dragon.txt
+        run: grep -i "dragon" dragon.txt
   
   # Deploy_Phase_job3:
   #   runs-on: ubuntu-latest
