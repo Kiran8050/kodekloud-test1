@@ -1,0 +1,27 @@
+name: Multiple jobs workflow
+on: push
+jobs:
+  Build_Phase_job1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to self repo
+        uses: actions/checkout@v4
+      
+      - name: Install cowsay on the runner using script
+        run: |
+          chmod +x ascii-script.sh
+          ./ascii-script.sh
+
+  Test_Phase_job2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Search for generated file
+        run: grep -i "dragon" dragon.txt
+  
+  Deploy_Phase_job3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read the file
+        run: |
+         cat dragon.txt
+         ls -ltra
