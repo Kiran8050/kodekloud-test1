@@ -29,34 +29,34 @@ jobs:
 
 
 
-      - name: Create sample ingress
-        run: |
-          cat <<EOF | kubectl apply -f -
-          apiVersion: networking.k8s.io/v1
-          kind: Ingress
-          metadata:
-            name: ${APP_NAME}-ui-alb
-            namespace: ${K8S_NAMESPACE}
-            labels:
-              release: ${APP_NAME}
-            annotations:
-              nginx.ingress.kubernetes.io/rewrite-target: /
-            finalizers:
-            - kubernetes
-          spec:
-            rules:
-            - host: example.com
-              http:
-                paths:
-                - path: /
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: ${APP_NAME}
-                      port:
-                        number: 80
-          EOF
-        shell: bash
+      # - name: Create sample ingress
+      #   run: |
+      #     cat <<EOF | kubectl apply -f -
+      #     apiVersion: networking.k8s.io/v1
+      #     kind: Ingress
+      #     metadata:
+      #       name: ${APP_NAME}-ui-alb
+      #       namespace: ${K8S_NAMESPACE}
+      #       labels:
+      #         release: ${APP_NAME}
+      #       annotations:
+      #         nginx.ingress.kubernetes.io/rewrite-target: /
+      #       finalizers:
+      #       - kubernetes
+      #     spec:
+      #       rules:
+      #       - host: example.com
+      #         http:
+      #           paths:
+      #           - path: /
+      #             pathType: Prefix
+      #             backend:
+      #               service:
+      #                 name: ${APP_NAME}
+      #                 port:
+      #                   number: 80
+      #     EOF
+      #   shell: bash
 
       - name: Before Patch and delete ingress for UI and Gateway
         run: |
