@@ -1,0 +1,64 @@
+name: ingress
+run-name: ingress
+
+on: push
+
+jobs:
+  minikube-helm:
+    runs-on: ubuntu-latest
+    env:
+      APP_NAME: "myapp"
+      K8S_NAMESPACE: "default"
+
+    steps:
+      - name: Set up Minikube
+        run: |
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
+          minikube start --driver=docker
+        shell: bash
+
+      - name: Set up kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version --client
+        shell: bash
+
+
+
+      - name: Create sample ingress
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: ${APP_NAME}-ui-alb
+            namespace: ${K8S_NAMESPACE}
+            labels:
+              release: ${APP_NAME}
+            annotations:
+              nginx.ingress.kubernetes.io/rewrite-target: /
+          spec:
+            rules:
+            - host: example.com
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: ${APP_NAME}
+                      port:
+                        number: 80
+          EOF
+        shell: bash
+
+      - name: Patch and delete ingress for UI and Gateway
+        run: |
+          kubectl patch ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE} --type='merge' -p '{"metadata": {"finalizers": []}}'
+          kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE}
+        shell: bash
+
