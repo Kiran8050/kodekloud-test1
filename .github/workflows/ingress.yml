@@ -58,9 +58,9 @@ jobs:
 
       - name: Patch and delete ingress for UI and Gateway
         run: |
-          kubectl patch ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE} --type='merge' -p '{"metadata": {"finalizers": []}}'
           kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE}
           kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE} -o yaml > ui_ingress.yaml
           cat ui_ingress.yaml
         shell: bash
+          # kubectl patch ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE} --type='merge' -p '{"metadata": {"finalizers": []}}'
 
