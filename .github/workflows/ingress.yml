@@ -41,6 +41,8 @@ jobs:
               release: ${APP_NAME}
             annotations:
               nginx.ingress.kubernetes.io/rewrite-target: /
+            finalizers:
+            - kubernetes
           spec:
             rules:
             - host: example.com
