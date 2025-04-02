@@ -74,6 +74,30 @@ jobs:
         shell: bash
         continue-on-error: true
 
+      - name: Check release status
+        id: check_release_status
+        run: |
+          if helm status ${APP_NAME} --namespace ${K8S_NAMESPACE}; then
+            echo "Release exists"
+            echo "release_exists=true" >> $GITHUB_ENV
+          else
+            echo "Release does not exist"
+            echo "release_exists=false" >> $GITHUB_ENV
+          fi
+        shell: bash
+        continue-on-error: true
+
+      - name: Set release status output
+        id: set_release_status
+        run: echo "release_exists=${{ env.release_exists }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Helm Uninstall
+        if: steps.set_release_status.outputs.release_exists == 'true'
+        run: |
+          helm uninstall ${APP_NAME} --namespace ${K8S_NAMESPACE}
+        shell: bash
+
       - name: Before Patch and delete ingress for UI and Gateway
         run: |
           kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE}
