@@ -75,18 +75,18 @@ jobs:
       #   shell: bash
       #   continue-on-error: true
 
-      # - name: Check if ingress exists
-      #   id: check_ingress
-      #   run: |
-      #     if kubectl get ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE}; then
-      #       echo "ui_ingress_exists=true" >> $GITHUB_ENV
-      #       echo "ui ingress exists"
-      #     else
-      #       echo "ui_ingress_exists=false" >> $GITHUB_ENV
-      #       echo "ui ingress not exists"
-      #     fi
-      #   shell: bash
-      #   continue-on-error: true
+      - name: Check if ingress exists
+        id: check_ingress
+        run: |
+          if kubectl get ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE}; then
+            echo "ui_ingress_exists=true" >> $GITHUB_ENV
+            echo "ui ingress exists"
+          else
+            echo "ui_ingress_exists=false" >> $GITHUB_ENV
+            echo "ui ingress not exists"
+          fi
+        shell: bash
+        continue-on-error: true
       # - name: Set ui ingress status output
       #   id: set_ui_ingress_status
       #   run: echo "ui_ingress_exists=${{ env.ui_ingress_exists }}" >> $GITHUB_ENV
@@ -103,14 +103,14 @@ jobs:
       #     kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE} -o yaml > ui_ingress.yaml
       #     cat ui_ingress.yaml
       #   shell: bash
-        # if: env.ui_ingress_exists == 'true'
+        
       - name: After Patch and delete ingress for UI and Gateway
+        if: (env.ui_ingress_exists) == 'true'
         run: |
           kubectl patch ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE} --type='merge' -p '{"metadata": {"finalizers": []}}'
           kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE}
           kubectl get ing -l release=${APP_NAME} --namespace ${K8S_NAMESPACE} -o yaml > ui_ingress.yaml
           cat ui_ingress.yaml
         shell: bash
-        continue-on-error: true
           # || steps.set_gateway_ingress_status.outputs.gateway_ingress_exists == 'true'
 
