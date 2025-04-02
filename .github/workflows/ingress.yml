@@ -140,7 +140,7 @@ jobs:
         shell: bash
 
       - name: Patch and delete ingress for UI and Gateway
-        if: ${{ env.ui_ingress_exists }} == 'true' || ${{ env.gateway_ingress_exists }} == 'true'
+        if: env.ui_ingress_exists }} == 'true' || env.gateway_ingress_exists == 'true'
         run: |
           if [ "${{ env.ui_ingress_exists }}" == "true" ]; then
             kubectl patch ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE} --type='merge' -p '{"metadata": {"finalizers": []}}'
