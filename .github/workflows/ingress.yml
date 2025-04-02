@@ -134,7 +134,7 @@ jobs:
         continue-on-error: true
 
       - name: Helm Uninstall
-        if: ${{ env.release_exists }} == 'true'
+        if: env.release_exists == 'true'
         run: |
           helm uninstall ${APP_NAME} --namespace ${K8S_NAMESPACE}
         shell: bash
