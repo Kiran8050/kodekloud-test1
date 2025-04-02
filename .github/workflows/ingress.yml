@@ -134,13 +134,13 @@ jobs:
         continue-on-error: true
 
       - name: Helm Uninstall
-        if: env.release_exists == 'true'
+        if: ${{ env.release_exists }} == 'true'
         run: |
           helm uninstall ${APP_NAME} --namespace ${K8S_NAMESPACE}
         shell: bash
 
       - name: Patch and delete ingress for UI and Gateway
-        if: env.ui_ingress_exists == 'true' || env.gateway_ingress_exists == 'true'
+        if: ${{ env.ui_ingress_exists }} == 'true' || ${{ env.gateway_ingress_exists }} == 'true'
         run: |
           if [ "${{ env.ui_ingress_exists }}" == "true" ]; then
             kubectl patch ing ${APP_NAME}-ui-alb -n ${K8S_NAMESPACE} --type='merge' -p '{"metadata": {"finalizers": []}}'
