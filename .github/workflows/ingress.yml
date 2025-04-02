@@ -32,40 +32,40 @@ jobs:
           helm version
         shell: bash
 
-      # - name: Deploy a simple Helm chart
-      #   run: |
-      #     helm repo add bitnami https://charts.bitnami.com/bitnami
-      #     helm install ${APP_NAME} bitnami/nginx --namespace ${K8S_NAMESPACE}
-      #   shell: bash
+      - name: Deploy a simple Helm chart
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm install ${APP_NAME} bitnami/nginx --namespace ${K8S_NAMESPACE}
+        shell: bash
 
-      # - name: Create sample ingress
-      #   run: |
-      #     cat <<EOF | kubectl apply -f -
-      #     apiVersion: networking.k8s.io/v1
-      #     kind: Ingress
-      #     metadata:
-      #       name: ${APP_NAME}-ui-alb
-      #       namespace: ${K8S_NAMESPACE}
-      #       labels:
-      #         release: ${APP_NAME}
-      #       annotations:
-      #         nginx.ingress.kubernetes.io/rewrite-target: /
-      #       finalizers:
-      #       - kubernetes
-      #     spec:
-      #       rules:
-      #       - host: example.com
-      #         http:
-      #           paths:
-      #           - path: /
-      #             pathType: Prefix
-      #             backend:
-      #               service:
-      #                 name: ${APP_NAME}
-      #                 port:
-      #                   number: 80
-      #     EOF
-
+      - name: Create sample ingress
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: ${APP_NAME}-ui-alb
+            namespace: ${K8S_NAMESPACE}
+            labels:
+              release: ${APP_NAME}
+            annotations:
+              nginx.ingress.kubernetes.io/rewrite-target: /
+            finalizers:
+            - kubernetes
+          spec:
+            rules:
+            - host: example.com
+              http:
+                paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: ${APP_NAME}
+                      port:
+                        number: 80
+          EOF
+        shell: bash
       #     cat <<EOF | kubectl apply -f -
       #     apiVersion: networking.k8s.io/v1
       #     kind: Ingress
