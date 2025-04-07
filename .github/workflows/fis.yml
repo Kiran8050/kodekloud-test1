@@ -1,4 +1,4 @@
-name: Deploy AWS FIS Experiment via CloudFormation
+name: AWS FIS
 run-name: AWS FIS
 
 on: push
@@ -38,7 +38,7 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --template-file cloudformation/fis-template.yaml \
+            --template-file fis-template.yml \
             --stack-name fis-experiment-stack \
             --capabilities CAPABILITY_NAMED_IAM
 
