@@ -14,7 +14,7 @@ Resources:
         StopInstanceAction:
           ActionId: 'aws:ec2:stopInstances'
           Parameters:
-            instanceIds: ['i-0b6587a9b1483779c']  # Replace with your EC2 instance ID
+            instanceIds: "i-0b6587a9b1483779c"  # Replace with your EC2 instance ID
           Targets:
             - EC2InstanceTarget
       StopConditions:
