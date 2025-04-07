@@ -3,7 +3,6 @@ Resources:
   FISExperimentTemplate:
     Type: 'AWS::FIS::ExperimentTemplate'
     Properties:
-      ExperimentTemplateName: 'MyFISExperimentTemplate'
       RoleArn: 'arn:aws:iam::247018008381:role/fisrole' # Replace with your IAM role ARN
       Targets:
         EC2InstanceTarget:
@@ -21,4 +20,3 @@ Resources:
       StopConditions:
         - Type: 'duration'
           DurationSeconds: 60  # Duration for the fault injection experiment
-          
