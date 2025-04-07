@@ -1,24 +1,165 @@
+
 AWSTemplateFormatVersion: '2010-09-09'
+Description: Using GitHub Actions to deploy FIS experiment from CloudFormation
+
+Parameters:
+  VPCId:
+    Default: /CNS/resources/vpc_id
+    Description: 'VPC id of the workspace'
+    Type: "AWS::SSM::Parameter::Value<String>"
+  ResSgId:
+    Default: /CNS/resources/res_sg
+    Description: Security group for Restricted Subnets
+    Type: AWS::SSM::Parameter::Value<String>
+  ResSubnets:
+    Default: '/CNS/resources/subnets/res/all'
+    Description: List of subnets for Restricted
+    Type: AWS::SSM::Parameter::Value<List<String>>
+  ResSubA1:
+    Default: '/resilience/config/ResA1'
+    Description: List of subnets for Restricted
+    Type: "AWS::SSM::Parameter::Value<String>"
+  ResSubA2:
+    Default: '/resilience/config/ResA2'
+    Description: List of subnets for Restricted
+    Type: "AWS::SSM::Parameter::Value<String>"
+  environment:
+    Type: String
+    Description: The environment for the deployment
+  ENV:
+    Description: The Environment variable
+    Type: String
+
 Resources:
-  FISExperimentTemplate:
-    Type: 'AWS::FIS::ExperimentTemplate'
+  # Create CloudWatch Log Group
+  FISLogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
-      Description: FIS-STOP-Instance
-      RoleArn: 'arn:aws:iam::247018008381:role/fisrole'  # Replace with your IAM role ARN
+      LogGroupName: /aws/fis/experiment-logs
+      RetentionInDays: 30
+
+  # FIS Stop Experiment Template
+  FISStopExperimentTemplate:
+    Type: AWS::FIS::ExperimentTemplate
+    Properties:
+      Description: FIS-EC2-Stop-Instance-Experiment
+      RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/Resilience-FISExecutionRole
       Targets:
         EC2Instance:
           ResourceType: aws:ec2:instance
           ResourceTags:
-            Experiment: ChaosReady
+            Experiment: ChaosReady            
           SelectionMode: ALL
       Actions:
         FISStopInstanceAction:
           ActionId: aws:ec2:stop-instances
+          Description: FIS-EC2-Stop-Instance-Experiment
           Parameters:
             startInstancesAfterDuration: PT3M
           Targets:
-            Instance: EC2Instance
+            Instances: EC2Instance
       StopConditions:
-        - Source: none  # Correct field for stop condition type
+        - Source: none
       Tags:
-        Name: FIS-Stop-EC2
+        Name: FIS-EC2-Stop-Instance-Experiment
+      LogConfiguration:
+        CloudWatchLogsConfiguration:
+          LogGroupArn: !GetAtt FISLogGroup.Arn
+        LogSchemaVersion: 2
+      ExperimentOptions:
+        AccountTargeting: single-account
+        EmptyTargetResolutionMode: fail
+
+  # FIS Reboot Experiment Template
+  FISRebootExperimentTemplate:
+    Type: AWS::FIS::ExperimentTemplate
+    Properties:
+      Description: FIS-EC2-Reboot-Instance-Experiment
+      RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/Resilience-FISExecutionRole
+      Targets:
+        EC2Instance:
+          ResourceType: aws:ec2:instance
+          ResourceTags:
+            Experiment: ChaosReady            
+          SelectionMode: ALL
+      Actions:
+        FISRebootInstanceAction:
+          ActionId: aws:ec2:reboot-instances
+          Description: FIS-EC2-Reboot-Instance-Experiment
+          Targets:
+            Instances: EC2Instance
+      StopConditions:
+        - Source: none
+      Tags:
+        Name: FIS-EC2-Reboot-Instance-Experiment
+      LogConfiguration:
+        CloudWatchLogsConfiguration:
+          LogGroupArn: !GetAtt FISLogGroup.Arn
+        LogSchemaVersion: 2
+      ExperimentOptions:
+        AccountTargeting: single-account
+        EmptyTargetResolutionMode: fail
+
+  # FIS Terminate Experiment Template
+  FISTerminateExperimentTemplate:
+    Type: AWS::FIS::ExperimentTemplate
+    Properties:
+      Description: FIS-EC2-Terminate-Instance-Experiment
+      RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/Resilience-FISExecutionRole
+      Targets:
+        EC2Instance:
+          ResourceType: aws:ec2:instance
+          ResourceTags:
+            Experiment: ChaosReady            
+          SelectionMode: ALL
+      Actions:
+        FISTerminateInstanceAction:
+          ActionId: aws:ec2:terminate-instances
+          Description: FIS-EC2-Terminate-Instance-Experiment
+          Targets:
+            Instances: EC2Instance
+      StopConditions:
+        - Source: none
+      Tags:
+        Name: FIS-EC2-Terminate-Instance-Experiment
+      LogConfiguration:
+        CloudWatchLogsConfiguration:
+          LogGroupArn: !GetAtt FISLogGroup.Arn
+        LogSchemaVersion: 2
+      ExperimentOptions:
+        AccountTargeting: single-account
+        EmptyTargetResolutionMode: fail
+
+  # FIS AZ Availability Experiment Template
+  FISAZAvailabilityExperimentTemplate:
+    Type: AWS::FIS::ExperimentTemplate
+    Properties:
+      Description: FIS-AZ-Availability-Experiment
+      RoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/Resilience-FISExecutionRole
+      Targets:
+        SubnetsTarget:
+          ResourceType: aws:ec2:subnet
+          ResourceArns:
+            - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:subnet/${ResSubA1}"
+            - !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:subnet/${ResSubA2}"
+          SelectionMode: ALL
+      Actions:
+        FISAZAvailabilityAction:
+          ActionId: aws:network:disrupt-connectivity
+          Description: FIS-AZ-Availability-Experiment
+          Parameters:
+            duration: PT5M
+            scope: all
+          Targets:
+            Subnets: SubnetsTarget
+      StopConditions:
+        - Source: none
+      Tags:
+        Name: FIS-AZ-Availability-Experiment
+      LogConfiguration:
+        CloudWatchLogsConfiguration:
+          LogGroupArn: !GetAtt FISLogGroup.Arn
+        LogSchemaVersion: 2
+      ExperimentOptions:
+        AccountTargeting: single-account
+        EmptyTargetResolutionMode: fail
