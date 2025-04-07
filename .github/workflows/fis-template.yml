@@ -4,7 +4,7 @@ Resources:
     Type: 'AWS::FIS::ExperimentTemplate'
     Properties:
       ExperimentTemplateName: 'MyFISExperimentTemplate'
-      RoleArn: 'arn:aws:iam::123456789012:role/fis-experiment-role' # Replace with your IAM role ARN
+      RoleArn: 'arn:aws:iam::123456789012:role/fisrole' # Replace with your IAM role ARN
       Targets:
         EC2InstanceTarget:
           ResourceType: 'aws:ec2:instance'
