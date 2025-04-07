@@ -38,11 +38,11 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
-            --template-file fis-template.yml \
+            --template-file s3.yml \
             --stack-name fis-experiment-stack \
             --capabilities CAPABILITY_NAMED_IAM
 
-      # Step 6: Verify CloudFormation Stack creation
-      - name: Verify CloudFormation stack creation
-        run: |
-          aws cloudformation describe-stacks --stack-name fis-experiment-stack
+    #   # Step 6: Verify CloudFormation Stack creation
+    #   - name: Verify CloudFormation stack creation
+    #     run: |
+    #       aws cloudformation describe-stacks --stack-name fis-experiment-stack
