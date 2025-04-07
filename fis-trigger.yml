@@ -1,0 +1,94 @@
+# This is the infra build workflow 
+
+name: FIS Experiment trigger
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+ # push:
+ #   branches: [ "main" ]
+ # pull_request:
+ #   branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Select the environment
+        required: true
+        options:
+          - trust_build_verify
+          - staging
+          - prod
+      FISExperiment:
+        description: Select the experiment
+        required: true
+
+# environment variables
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_Account_ID: ${{ vars.AWS_Account_ID }}
+  AWS_TRUST_ROLE: ${{ vars.AWS_TRUST_ROLE }}
+  AWS_DEPLOYMENT_ROLE: ${{ vars.AWS_DEPLOYMENT_ROLE }}
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
+  
+  S3_PREFIX: ${{ vars.ENVIRO }}-${{ vars.APP_NAME }}                   
+
+permissions:
+  contents: write
+  id-token: write
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  deploy:
+    name: Build Infra
+    runs-on: default
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+    - name: Set env to trust_build_verify
+      if: endsWith(github.ref, '/trust_build_verify')
+      run: |
+        echo "ENVIRONMENT=trust_build_verify" >> $GITHUB_ENV
+
+    - name: Set env to staging
+      if: endsWith(github.ref, '/staging')
+      run: |
+        echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+
+    - name: Set env to production
+      if: endsWith(github.ref, '/prod')
+      run: |
+        echo "ENVIRONMENT=production" >> $GITHUB_ENV
+    
+    - name: Checkout 
+      uses: actions/checkout@v4
+      
+
+  # Configure AWS Credential
+    - name: Configure AWS credentials (AssumeRoleWithWebIdentity)
+      uses: aws-actions/configure-aws-credentials@v4
+      env:
+        AWS_REGION: ${{ env.AWS_REGION }}
+        AWS_TRUST_ROLE: ${{ env.AWS_TRUST_ROLE }}                     
+      with:
+        role-to-assume: "${{ env.AWS_TRUST_ROLE }}"
+        role-session-name: "GitHubActions"
+        aws-region: "${{ env.AWS_REGION }}"
+
+    - name: Configure AWS credentials (AssumeRole)
+      uses: aws-actions/configure-aws-credentials@v4
+      env:
+        AWS_REGION: ${{ env.AWS_REGION }}
+        AWS_DEPLOYMENT_ROLE: ${{ env.AWS_DEPLOYMENT_ROLE }}
+      with:
+        role-to-assume: "${{ env.AWS_DEPLOYMENT_ROLE }}"
+        role-session-name: "GitHubActions"
+        aws-region: "${{ env.AWS_REGION }}"
+        role-chaining: true
+    
+    - name: Trigger FIS Experiments
+      id: fistrigger
+      run: |
+        aws fis start-experiment --experiment-template-id ${{ github.event.inputs.FISExperiment }}
