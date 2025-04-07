@@ -3,9 +3,9 @@ Resources:
   FISExperimentTemplate:
     Type: 'AWS::FIS::ExperimentTemplate'
     Properties:
-      RoleArn: 'arn:aws:iam::247018008381:role/fisrole' # Replace with your IAM role ARN
+      RoleArn: 'arn:aws:iam::247018008381:role/fisrole'  # Replace with your IAM role ARN
       Targets:
-        EC2InstanceTarget:
+        EC2InstanceTarget:  # This is the correct format, using a single object
           ResourceType: 'aws:ec2:instance'
           SelectionMode: 'ALL'
           ResourceArns:
@@ -14,9 +14,13 @@ Resources:
         StopInstanceAction:
           ActionId: 'aws:ec2:stopInstances'
           Parameters:
-            instanceIds: "i-0b6587a9b1483779c"  # Replace with your EC2 instance ID
+            instanceIds: "i-0b6587a9b1483779c"  # Use a single instance ID or comma-separated list for multiple
           Targets:
-            - EC2InstanceTarget
+            EC2InstanceTarget:  # This should be a single object
+              ResourceType: "aws:ec2:instance"
+              SelectionMode: "ALL"
+              ResourceArns:
+                - "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"  # Replace with your EC2 instance ARN
       StopConditions:
-        - Type: 'duration'
-          DurationSeconds: 60  # Duration for the fault injection experiment
+        - Condition: "duration"  # Use "duration" instead of "Type"
+          Duration: "60s"         # Duration for the experiment (e.g., 60 seconds)
