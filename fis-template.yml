@@ -3,6 +3,7 @@ Resources:
   FISExperimentTemplate:
     Type: 'AWS::FIS::ExperimentTemplate'
     Properties:
+      Description: FIS-STOP-Instance
       RoleArn: 'arn:aws:iam::247018008381:role/fisrole'  # Replace with your IAM role ARN
       Targets:
         EC2Instance:
