@@ -4,13 +4,12 @@ jobs:
     first-job:
         runs-on: ubuntu-latest
         steps:
-            
             - name: Checkout the own repo
               uses: actions/checkout@v4
 
             - name: Executing different cmds
               run: |
-                echo "Multiple cmds"  
+                echo "Multiple cmds"
                 pwd
                 ls -ltra
                 cat README.md

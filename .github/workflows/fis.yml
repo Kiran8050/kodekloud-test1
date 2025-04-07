@@ -1,4 +1,5 @@
 name: Deploy AWS FIS Experiment via CloudFormation
+run-name: AWS FIS
 
 on: push
 
