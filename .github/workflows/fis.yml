@@ -35,12 +35,19 @@ jobs:
           aws --version
 
       # Step 5: Create CloudFormation Stack to deploy FIS experiment template
-      - name: Deploy CloudFormation stack
+    #   - name: Deploy CloudFormation stack
+    #     run: |
+    #       aws cloudformation deploy \
+    #         --template-file s3.yml \
+    #         --stack-name fis-experiment-stack \
+    #         --capabilities CAPABILITY_NAMED_IAM
+
+
+
+      - name: Deploy FIS Template
         run: |
-          aws cloudformation deploy \
-            --template-file s3.yml \
-            --stack-name fis-experiment-stack \
-            --capabilities CAPABILITY_NAMED_IAM
+          aws fis create-experiment-template \
+          --cli-input-json file://fis.json
 
     #   # Step 6: Verify CloudFormation Stack creation
     #   - name: Verify CloudFormation stack creation

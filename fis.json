@@ -1,0 +1,23 @@
+{
+    "description": "Example FIS Template to stop and restart an EC2 instance",
+    "targets": {
+      "EC2Instances": {
+        "resourceType": "aws:ec2:instance",
+        "resourceArns": [
+          "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"
+        ]
+      }
+    },
+    "actions": {
+      "StopInstances": {
+        "actionId": "aws:ec2:stop-instances",
+        "parameters": {
+          "startInstancesAfterDuration": "PT1M"
+        },
+        "targets": {
+          "Instances": "EC2Instances"
+        }
+      }
+    },
+    "roleArn": "arn:aws:iam::247018008381:role/fisrole"
+  }
