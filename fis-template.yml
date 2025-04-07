@@ -10,9 +10,9 @@ Resources:
         StopInstanceAction:
           ActionId: 'aws:ec2:stopInstances'
           Parameters:
-            instanceIds: "i-1234567890abcdef0"  # Comma-separated list if you have more than one instance
+            instanceIds: "i-0b6587a9b1483779c"  # Comma-separated list if you have more than one instance
           Targets:
-            EC2InstanceTarget: "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"  # Replace with your EC2 instance ARN
+            EC2InstanceTarget: "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c" # Replace with your EC2 instance ARN
       StopConditions:
         - Type: "duration"  # Correct field for stop condition type
           DurationSeconds: 60  # Duration in seconds for the experiment to run
