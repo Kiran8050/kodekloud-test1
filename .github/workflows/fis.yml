@@ -1,22 +1,44 @@
-name: Deploy AWS FIS Experiment via CloudFormation
-run-name: AWS FIS
+name: Minikube and Helm Example
+run-name: Minikube and Helm Workflow
 
 on: push
 
 jobs:
-  deploy-fis:
+  minikube-helm:
     runs-on: ubuntu-latest
+    env:
+      APP_NAME: "myapp"
+      K8S_NAMESPACE: "default"
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Set up Minikube
+        run: |
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
+          minikube start --driver=docker
+        shell: bash
 
-      - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2  # Replace with your AWS region
+
+# name: Deploy AWS FIS Experiment via CloudFormation
+# run-name: AWS FIS
+
+# on: push
+
+# jobs:
+#   deploy-fis:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+
+#       - name: Set up AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-west-2  # Replace with your AWS region
 
     #   # Step 3: Assume the role you created for FIS
     #   - name: Assume FIS role
