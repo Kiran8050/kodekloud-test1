@@ -4,18 +4,18 @@ Resources:
     Type: 'AWS::FIS::ExperimentTemplate'
     Properties:
       ExperimentTemplateName: 'MyFISExperimentTemplate'
-      RoleArn: 'arn:aws:iam::123456789012:role/fisrole' # Replace with your IAM role ARN
+      RoleArn: 'arn:aws:iam::247018008381:role/fisrole' # Replace with your IAM role ARN
       Targets:
         EC2InstanceTarget:
           ResourceType: 'aws:ec2:instance'
           SelectionMode: 'ALL'
           ResourceArns:
-            - 'arn:aws:ec2:us-west-2:123456789012:instance/i-1234567890abcdef0'  # Replace with your EC2 instance ARN
+            - 'arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c'  # Replace with your EC2 instance ARN
       Actions:
         StopInstanceAction:
           ActionId: 'aws:ec2:stopInstances'
           Parameters:
-            instanceIds: ['i-1234567890abcdef0']  # Replace with your EC2 instance ID
+            instanceIds: ['i-0b6587a9b1483779c']  # Replace with your EC2 instance ID
           Targets:
             - EC2InstanceTarget
       StopConditions:
