@@ -29,12 +29,10 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')
           export AWS_SESSION_TOKEN=$(echo $CREDS | jq -r '.Credentials.SessionToken')
 
-      # Step 4: Install AWS CLI
-      - name: Install AWS CLI
+      # Step 4: Print AWS CLI version
+      - name: Print AWS CLI version
         run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
+          aws --version
 
       # Step 5: Create CloudFormation Stack to deploy FIS experiment template
       - name: Deploy CloudFormation stack
