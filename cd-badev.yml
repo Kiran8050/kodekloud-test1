@@ -1,0 +1,55 @@
+---
+name: CD - Badev
+run-name: ${{ github.event_name }} CD - Badev
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cd-badev.yml'   
+      - 'deployment/badev/.env.badev'
+      - 'deployment/badev/cloudformation/**'
+      - 'deployment/badev/kubernetes/**'
+    branches: [main]
+  pull_request:
+    paths:
+      - 'deployment/badev/cloudformation/**'
+      - 'deployment/badev/kubernetes/**'
+    branches: [main]
+
+permissions:
+  actions: read             # Required to read the actions
+  statuses: read            # Required for the security tab
+  id-token: write           # Required for requesting the JWT
+  contents: read            # Required for actions/checkout
+  security-events: write    # Required for the security tab
+
+jobs:
+  pull-request-check:
+    if: github.event_name == 'pull_request'
+    name: Pull Request Check
+    uses: CBA-General/payments-pce-common-actions/.github/workflows/msaas-pull-request-check.yml@main
+    with:
+      enable-wiz-scan: false
+      cfn-target-directory-or-file: deployment/badev/cloudformation
+      helm-target-directory-or-file: deployment/badev/kubernetes/helm
+
+  deployment:
+    if: github.event_name == 'push'
+    uses: "./.github/workflows/cd.yml"
+    with:
+      environment-name: "badev"
+      github-trust-role: "gha-trust-hvip-1"
+      aws-region: "ap-southeast-2"
+      workload-account-id: "783140949717"
+      workload-deploy-role: "WorkloadDeployRole"
+      cfn-deploy-role: "CfnDeployRole"
+      cfn-template: "aws-resources.yaml"
+      resource-name: "aws-resources"
+      artifactory-base-url: "https://artifactory.internal.cba"
+      helm-repo: "payments-msaas-helm-dev-local"
+      k8s-cluster-name: "pmn02"
+      k8s-namespace: "msaas-badev"
+      k8s-deploy-role: "K8sDeployRole"
+      vault-namespace: "pso/msaas-nonp-vault"
+      vault-secret-path: "pso/msaas-nonp-vault/kv/data/hvip/gph/badev"
+      #s3-bucketname: "dev-payments-gph-gwalb-mtls-finastra"
