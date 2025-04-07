@@ -1,70 +1,50 @@
-name: Minikube and Helm Example
-run-name: Minikube and Helm Workflow
+name: Deploy AWS FIS Experiment via CloudFormation
+run-name: AWS FIS
 
 on: push
 
 jobs:
-  minikube-helm:
+  deploy-fis:
     runs-on: ubuntu-latest
-    env:
-      APP_NAME: "myapp"
-      K8S_NAMESPACE: "default"
 
     steps:
-      - name: Set up Minikube
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up AWS credentials using GitHub Secrets
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2  # Replace with your AWS region
+
+      # Step 3: Assume the role you created for FIS
+      - name: Assume FIS role
         run: |
-          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-          chmod +x minikube
-          sudo mv minikube /usr/local/bin/
-          minikube start --driver=docker
-        shell: bash
+          ROLE_ARN="arn:aws:iam::123456789012:role/FISExperimentRole"  # Replace with your FIS role ARN
+          CREDS=$(aws sts assume-role --role-arn $ROLE_ARN --role-session-name "GitHubActionsSession")
+          export AWS_ACCESS_KEY_ID=$(echo $CREDS | jq -r '.Credentials.AccessKeyId')
+          export AWS_SECRET_ACCESS_KEY=$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')
+          export AWS_SESSION_TOKEN=$(echo $CREDS | jq -r '.Credentials.SessionToken')
 
+      # Step 4: Install AWS CLI
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
 
-# name: Deploy AWS FIS Experiment via CloudFormation
-# run-name: AWS FIS
+      # Step 5: Create CloudFormation Stack to deploy FIS experiment template
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file cloudformation/fis-template.yaml \
+            --stack-name fis-experiment-stack \
+            --capabilities CAPABILITY_NAMED_IAM
 
-# on: push
-
-# jobs:
-#   deploy-fis:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
-
-#       - name: Set up AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: us-west-2  # Replace with your AWS region
-
-    #   # Step 3: Assume the role you created for FIS
-    #   - name: Assume FIS role
-    #     run: |
-    #       ROLE_ARN="arn:aws:iam::123456789012:role/FISExperimentRole"  # Replace with your FIS role ARN
-    #       CREDS=$(aws sts assume-role --role-arn $ROLE_ARN --role-session-name "GitHubActionsSession")
-    #       export AWS_ACCESS_KEY_ID=$(echo $CREDS | jq -r '.Credentials.AccessKeyId')
-    #       export AWS_SECRET_ACCESS_KEY=$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')
-    #       export AWS_SESSION_TOKEN=$(echo $CREDS | jq -r '.Credentials.SessionToken')
-
-    #   # Step 4: Install AWS CLI
-    #   - name: Install AWS CLI
-    #     run: |
-    #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    #       unzip awscliv2.zip
-    #       sudo ./aws/install
-
-    #   # Step 5: Create CloudFormation Stack to deploy FIS experiment template
-    #   - name: Deploy CloudFormation stack
-    #     run: |
-    #       aws cloudformation deploy \
-    #         --template-file cloudformation/fis-template.yaml \
-    #         --stack-name fis-experiment-stack \
-    #         --capabilities CAPABILITY_NAMED_IAM
-
-    #   # Step 6: Verify CloudFormation Stack creation
-    #   - name: Verify CloudFormation stack creation
-    #     run: |
-    #       aws cloudformation describe-stacks --stack-name fis-experiment-stack
+      # Step 6: Verify CloudFormation Stack creation
+      - name: Verify CloudFormation stack creation
+        run: |
+          aws cloudformation describe-stacks --stack-name fis-experiment-stack
