@@ -20,3 +20,5 @@ Resources:
             Instance: EC2Instance
       StopConditions:
         - Source: none  # Correct field for stop condition type
+      Tags:
+        Name: FIS-Stop-EC2
