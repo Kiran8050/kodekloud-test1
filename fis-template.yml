@@ -5,22 +5,14 @@ Resources:
     Properties:
       RoleArn: 'arn:aws:iam::247018008381:role/fisrole'  # Replace with your IAM role ARN
       Targets:
-        EC2InstanceTarget:  # This is the correct format, using a single object
-          ResourceType: 'aws:ec2:instance'
-          SelectionMode: 'ALL'
-          ResourceArns:
-            - 'arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c'  # Replace with your EC2 instance ARN
+        EC2InstanceTarget: "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"  # Replace with your EC2 instance ARN
       Actions:
         StopInstanceAction:
           ActionId: 'aws:ec2:stopInstances'
           Parameters:
-            instanceIds: "i-0b6587a9b1483779c"  # Use a single instance ID or comma-separated list for multiple
+            instanceIds: "i-1234567890abcdef0"  # Comma-separated list if you have more than one instance
           Targets:
-            EC2InstanceTarget:  # This should be a single object
-              ResourceType: "aws:ec2:instance"
-              SelectionMode: "ALL"
-              ResourceArns:
-                - "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"  # Replace with your EC2 instance ARN
+            EC2InstanceTarget: "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"  # Replace with your EC2 instance ARN
       StopConditions:
-        - Condition: "duration"  # Use "duration" instead of "Type"
-          Duration: "60s"         # Duration for the experiment (e.g., 60 seconds)
+        - Type: "duration"  # Correct field for stop condition type
+          DurationSeconds: 60  # Duration in seconds for the experiment to run
