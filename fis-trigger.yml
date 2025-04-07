@@ -1,94 +1,54 @@
-# This is the infra build workflow 
+name: FIS Experiment Trigger for NPD
 
-name: FIS Experiment trigger
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
- # push:
- #   branches: [ "main" ]
- # pull_request:
- #   branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
-      environment:
-        type: choice
-        description: Select the environment
+      namespace:
+        description: "Enter the namespace for the npd environment (e.g., t2, t4, t5)"
         required: true
-        options:
-          - trust_build_verify
-          - staging
-          - prod
-      FISExperiment:
-        description: Select the experiment
+      fis_experiment:
+        description: "Select the FIS experiment template (e.g., ec2_stop.json)"
         required: true
 
-# environment variables
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  AWS_Account_ID: ${{ vars.AWS_Account_ID }}
-  AWS_TRUST_ROLE: ${{ vars.AWS_TRUST_ROLE }}
-  AWS_DEPLOYMENT_ROLE: ${{ vars.AWS_DEPLOYMENT_ROLE }}
-  env_var: ${{ vars.ENV_CONTEXT_VAR }}
-  
-  S3_PREFIX: ${{ vars.ENVIRO }}-${{ vars.APP_NAME }}                   
+  AWS_REGION: ap-southeast-2
+  AWS_ACCOUNT_ID: "YOUR_ACCOUNT_ID"
+  AWS_TRUST_ROLE: "YOUR_TRUST_ROLE"
+  AWS_DEPLOYMENT_ROLE: "YOUR_DEPLOYMENT_ROLE"
 
 permissions:
   contents: write
   id-token: write
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  deploy:
-    name: Build Infra
-    runs-on: default
-    environment: ${{ github.event.inputs.environment }}
+  trigger-fis:
+    name: Trigger FIS Experiment in NPD
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Set env to trust_build_verify
-      if: endsWith(github.ref, '/trust_build_verify')
-      run: |
-        echo "ENVIRONMENT=trust_build_verify" >> $GITHUB_ENV
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Set env to staging
-      if: endsWith(github.ref, '/staging')
-      run: |
-        echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+      - name: Set Namespace
+        run: echo "NAMESPACE=${{ github.event.inputs.namespace }}" >> $GITHUB_ENV
 
-    - name: Set env to production
-      if: endsWith(github.ref, '/prod')
-      run: |
-        echo "ENVIRONMENT=production" >> $GITHUB_ENV
-    
-    - name: Checkout 
-      uses: actions/checkout@v4
-      
+      - name: Configure AWS credentials (AssumeRoleWithWebIdentity)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "${{ env.AWS_TRUST_ROLE }}"
+          role-session-name: "GitHubActions"
+          aws-region: "${{ env.AWS_REGION }}"
 
-  # Configure AWS Credential
-    - name: Configure AWS credentials (AssumeRoleWithWebIdentity)
-      uses: aws-actions/configure-aws-credentials@v4
-      env:
-        AWS_REGION: ${{ env.AWS_REGION }}
-        AWS_TRUST_ROLE: ${{ env.AWS_TRUST_ROLE }}                     
-      with:
-        role-to-assume: "${{ env.AWS_TRUST_ROLE }}"
-        role-session-name: "GitHubActions"
-        aws-region: "${{ env.AWS_REGION }}"
+      - name: Configure AWS credentials (AssumeRole)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "${{ env.AWS_DEPLOYMENT_ROLE }}"
+          role-session-name: "GitHubActions"
+          aws-region: "${{ env.AWS_REGION }}"
+          role-chaining: true
 
-    - name: Configure AWS credentials (AssumeRole)
-      uses: aws-actions/configure-aws-credentials@v4
-      env:
-        AWS_REGION: ${{ env.AWS_REGION }}
-        AWS_DEPLOYMENT_ROLE: ${{ env.AWS_DEPLOYMENT_ROLE }}
-      with:
-        role-to-assume: "${{ env.AWS_DEPLOYMENT_ROLE }}"
-        role-session-name: "GitHubActions"
-        aws-region: "${{ env.AWS_REGION }}"
-        role-chaining: true
-    
-    - name: Trigger FIS Experiments
-      id: fistrigger
-      run: |
-        aws fis start-experiment --experiment-template-id ${{ github.event.inputs.FISExperiment }}
+      - name: Trigger FIS Experiment
+        run: |
+          echo "Triggering FIS experiment for namespace ${{ env.NAMESPACE }}"
+          aws fis start-experiment \
+            --experiment-template-id ${{ github.event.inputs.fis_experiment }}
