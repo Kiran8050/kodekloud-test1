@@ -19,5 +19,10 @@
         }
       }
     },
-    "roleArn": "arn:aws:iam::247018008381:role/fisrole"
-  }
+    "stopConditions": [
+        {
+          "source": "none"
+        }
+      ],
+      "roleArn": "arn:aws:iam::247018008381:role/fisrole"
+    }
