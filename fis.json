@@ -5,7 +5,8 @@
         "resourceType": "aws:ec2:instance",
         "resourceArns": [
           "arn:aws:ec2:ap-southeast-2:247018008381:instance/i-0b6587a9b1483779c"
-        ]
+        ],
+        "selectionMode": "ALL"
       }
     },
     "actions": {
