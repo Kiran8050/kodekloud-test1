@@ -26,7 +26,7 @@ resource "aws_iam_role" "example" {
 
 resource "aws_eks_cluster" "example" {
   name     = "example-cluster"
-  role_arn = length(data.aws_iam_role.existing_role.arn) == 0 ? aws_iam_role.example.arn : data.aws_iam_role.existing_role.arn
+  role_arn = length(data.aws_iam_role.existing_role.arn) == 0 ? aws_iam_role.example[0].arn : data.aws_iam_role.existing_role.arn
 
   vpc_config {
     subnet_ids = [aws_subnet.example[0].id, aws_subnet.example[1].id]
