@@ -1,42 +1,41 @@
-provider "aws" {
-  region = "us-west-2"
-}
+name: Deploy EKS Cluster
 
-resource "aws_eks_cluster" "example" {
-  name     = "example-cluster"
-  role_arn = aws_iam_role.example.arn
+on:
+  push:
+    branches:
+      - main
 
-  vpc_config {
-    subnet_ids = [aws_subnet.example[0].id, aws_subnet.example[1].id]
-  }
-}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-resource "aws_iam_role" "example" {
-  name = "example-role-new"  # Updated role name
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-      },
-    ]
-  })
-}
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
 
-resource "aws_subnet" "example" {
-  count = 2
-  vpc_id = aws_vpc.example.id
-  cidr_block = cidrsubnet(aws_vpc.example.cidr_block, 8, count.index)
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
-}
+      - name: Terraform Init
+        run: terraform init
 
-resource "aws_vpc" "example" {
-  cidr_block = "10.0.0.0/16"
-}
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-data "aws_availability_zones" "available" {}
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      - name: Configure kubectl
+        run: |
+          aws eks --region us-west-2 update-kubeconfig --name example-cluster
+
+      - name: List Namespaces
+        run: kubectl get namespaces
